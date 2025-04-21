@@ -11,8 +11,27 @@ load_dotenv()
 client = MongoClient(os.getenv('MONGO_URI'))
 db = client[os.getenv('DB_NAME')]
 urls_collection = db['urls']
+counter_collection = db['counters']
 
 class URLModel:
+    @staticmethod
+    def _get_next_id():
+        """Get the next auto-incrementing ID"""
+        # Find and update the counter document
+        counter = counter_collection.find_one_and_update(
+            {'_id': 'url_id'},
+            {'$inc': {'seq': 1}},
+            upsert=True,
+            return_document=True
+        )
+        
+        # If this is the first document, initialize the counter
+        if not counter:
+            counter_collection.insert_one({'_id': 'url_id', 'seq': 1})
+            return 1
+            
+        return counter.get('seq', 1)
+    
     @staticmethod
     def create_url(original_url):
         """Create a new short URL entry in the database"""
@@ -22,9 +41,13 @@ class URLModel:
             if not urls_collection.find_one({'shortCode': short_code}):
                 break
         
+        # Get the next ID
+        next_id = URLModel._get_next_id()
+        
         # Create a new document
         now = datetime.utcnow().isoformat() + 'Z'
         url_doc = {
+            'id': next_id,
             'url': original_url,
             'shortCode': short_code,
             'createdAt': now,
@@ -33,10 +56,11 @@ class URLModel:
         }
         
         # Insert into database
-        result = urls_collection.insert_one(url_doc)
+        urls_collection.insert_one(url_doc)
         
-        # Add the ID to the document
-        url_doc['id'] = str(result.inserted_id)
+        # Remove MongoDB's _id field from the return value
+        if '_id' in url_doc:
+            del url_doc['_id']
         
         return url_doc
     
@@ -45,7 +69,9 @@ class URLModel:
         """Retrieve a URL by its short code"""
         url_doc = urls_collection.find_one({'shortCode': short_code})
         if url_doc:
-            url_doc['id'] = str(url_doc.pop('_id'))
+            # Remove MongoDB's _id field from the return value
+            if '_id' in url_doc:
+                del url_doc['_id']
             return url_doc
         return None
     
@@ -63,7 +89,8 @@ class URLModel:
         
         if result.modified_count:
             url_doc = urls_collection.find_one({'shortCode': short_code})
-            url_doc['id'] = str(url_doc.pop('_id'))
+            if '_id' in url_doc:
+                del url_doc['_id']
             return url_doc
         return None
     
