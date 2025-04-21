@@ -1,0 +1,45 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# Environment variables
+.env
+*.env
+
+# Flask cache and debug files
+instance/
+.webassets-cache
+*.log
+
+# VSCode settings
+.vscode/
+
+# PyCharm settings
+.idea/
+
+# macOS files
+.DS_Store
+
+# Test coverage
+htmlcov/
+.coverage
+.tox/
+
+# PyInstaller
+*.spec
+dist/
+build/
+
+# MongoDB dumps or data
+*.dump
+*.bak
+*.archive
+
+# Python egg info
