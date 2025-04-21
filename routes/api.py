@@ -29,3 +29,12 @@ def create_short_url():
     url_doc = URLModel.create_url(original_url)
     
     return jsonify(url_doc), 201
+@api_bp.route('/shorten/<short_code>', methods=['GET'])
+def get_original_url(short_code):
+    """Retrieve the original URL from a short code"""
+    url_doc = URLModel.get_url_by_code(short_code)
+    
+    if not url_doc:
+        return jsonify({'error': 'Short URL not found'}), 404
+    
+    return jsonify(url_doc), 200
