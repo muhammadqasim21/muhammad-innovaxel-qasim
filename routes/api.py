@@ -60,7 +60,7 @@ def update_short_url(short_code):
     
     # Update URL
     updated_url = URLModel.update_url(short_code, new_url)
-    
+    updated_url.pop('accessCount', None)
     return jsonify(updated_url), 200
 
 @api_bp.route('/shorten/<short_code>', methods=['DELETE'])
