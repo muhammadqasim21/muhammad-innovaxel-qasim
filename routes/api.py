@@ -38,3 +38,27 @@ def get_original_url(short_code):
         return jsonify({'error': 'Short URL not found'}), 404
     
     return jsonify(url_doc), 200
+
+@api_bp.route('/shorten/<short_code>', methods=['PUT'])
+def update_short_url(short_code):
+    """Update an existing short URL"""
+    data = request.get_json()
+    
+    # Validate input
+    if not data or 'url' not in data:
+        return jsonify({'error': 'URL is required'}), 400
+    
+    new_url = data['url']
+    
+    # Basic URL validation
+    if not new_url.startswith(('http://', 'https://')):
+        return jsonify({'error': 'Invalid URL format. URL must start with http:// or https://'}), 400
+    
+    # Check if URL exists
+    if not URLModel.get_url_by_code(short_code):
+        return jsonify({'error': 'Short URL not found'}), 404
+    
+    # Update URL
+    updated_url = URLModel.update_url(short_code, new_url)
+    
+    return jsonify(updated_url), 200
