@@ -74,3 +74,13 @@ def delete_short_url(short_code):
     URLModel.delete_url(short_code)
     
     return '', 204
+
+@api_bp.route('/stats/<short_code>', methods=['GET'])
+def get_url_stats(short_code):
+    """Get statistics for a short URL"""
+    url_doc = URLModel.get_url_by_code(short_code)
+    
+    if not url_doc:
+        return jsonify({'error': 'Short URL not found'}), 404
+    
+    return jsonify(url_doc), 200
