@@ -65,13 +65,15 @@ class URLModel:
         return url_doc
     
     @staticmethod
-    def get_url_by_code(short_code):
+    def get_url_by_code(short_code,include_access_count=False):
         """Retrieve a URL by its short code"""
         url_doc = urls_collection.find_one({'shortCode': short_code})
         if url_doc:
             # Remove MongoDB's _id field from the return value
             if '_id' in url_doc:
                 del url_doc['_id']
+            if not include_access_count:
+                url_doc.pop('accessCount', None)
             return url_doc
         return None
     
