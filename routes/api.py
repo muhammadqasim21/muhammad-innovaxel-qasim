@@ -27,7 +27,7 @@ def create_short_url():
     
     # Create short URL
     url_doc = URLModel.create_url(original_url)
-    
+    url_doc.pop('accessCount', None)
     return jsonify(url_doc), 201
 @api_bp.route('/shorten/<short_code>', methods=['GET'])
 def get_original_url(short_code):
