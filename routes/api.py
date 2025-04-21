@@ -62,3 +62,15 @@ def update_short_url(short_code):
     updated_url = URLModel.update_url(short_code, new_url)
     
     return jsonify(updated_url), 200
+
+@api_bp.route('/shorten/<short_code>', methods=['DELETE'])
+def delete_short_url(short_code):
+    """Delete an existing short URL"""
+    # Check if URL exists
+    if not URLModel.get_url_by_code(short_code):
+        return jsonify({'error': 'Short URL not found'}), 404
+    
+    # Delete URL
+    URLModel.delete_url(short_code)
+    
+    return '', 204
